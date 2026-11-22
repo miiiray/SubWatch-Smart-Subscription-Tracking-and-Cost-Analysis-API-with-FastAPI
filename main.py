@@ -25,8 +25,8 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
-app.include_router(subscriptions.router)   
-app.include_router(insights.router)        
+app.include_router(subscriptions.router)
+app.include_router(insights.router)
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
@@ -34,3 +34,8 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 @app.get("/", include_in_schema=False)
 def home():
     return FileResponse(STATIC_DIR / "login.html")
+
+
+@app.get("/app", include_in_schema=False)
+def dashboard():
+    return FileResponse(STATIC_DIR / "index.html")

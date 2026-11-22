@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SubWatch — Panel</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">◉</span>
+      <div>
+        <h1>SubWatch</h1>
+        <p>Aboneliklerini tek yerden takip et</p>
+      </div>
+    </div>
+    <div class="user-box">
+      <span>Merhaba, <strong id="userName">…</strong></span>
+      <a href="/docs" target="_blank"><button class="ghost">API Docs ↗</button></a>
+      <button class="danger" id="logoutBtn">Çıkış yap</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Özet kartları -->
+    <section class="stats">
+      <div class="stat"><span>Aylık toplam</span><strong id="statMonthly">–</strong></div>
+      <div class="stat"><span>Yıllık toplam</span><strong id="statYearly">–</strong></div>
+      <div class="stat">
+        <span>Bütçe durumu</span><strong id="statBudget">–</strong>
+        <div class="bar"><div id="budgetBar"></div></div>
+      </div>
+      <div class="stat"><span>Aktif abonelik</span><strong id="statCount">–</strong></div>
+    </section>
+
+    <div class="columns">
+      <section class="card">
+        <h2>💡 Akıllı öneriler</h2>
+        <ul id="insightList" class="list"></ul>
+      </section>
+      <section class="card">
+        <h2>📅 Önümüzdeki 7 gün</h2>
+        <ul id="upcomingList" class="list"></ul>
+      </section>
+    </div>
+
+    <!-- Abonelik listesi -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Aboneliklerim</h2>
+        <span class="muted" id="rateInfo"></span>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Servis</th><th>Kategori</th><th>Fiyat</th><th>Döngü</th><th>Sonraki ödeme</th><th></th></tr>
+        </thead>
+        <tbody id="subTable"></tbody>
+      </table>
+    </section>
+
+    <!-- Yeni abonelik formu -->
+    <section class="card">
+      <h2>+ Abonelik ekle</h2>
+      <form id="subForm" class="form-grid">
+        <label>Servis adı<input name="service_name" placeholder="Netflix" required></label>
+        <label>Kategori
+          <select name="category">
+            <option value="entertainment">Eğlence</option>
+            <option value="music">Müzik</option>
+            <option value="cloud">Bulut</option>
+            <option value="productivity">Verimlilik</option>
+            <option value="education">Eğitim</option>
+            <option value="gaming">Oyun</option>
+            <option value="shopping">Alışveriş</option>
+            <option value="other">Diğer</option>
+          </select>
+        </label>
+        <label>Fiyat<input name="price" type="number" min="0.01" step="0.01" required></label>
+        <label>Para birimi
+          <select name="currency"><option>TRY</option><option>USD</option><option>EUR</option></select>
+        </label>
+        <label>Döngü
+          <select name="billing_cycle">
+            <option value="monthly">Aylık</option>
+            <option value="yearly">Yıllık</option>
+          </select>
+        </label>
+        <label>Sonraki ödeme<input name="next_payment_date" type="date" required></label>
+        <label class="check"><input name="is_trial" type="checkbox"> Deneme sürümü</label>
+        <label>Deneme bitişi<input name="trial_end_date" type="date"></label>
+        <div class="form-actions"><button type="submit">Ekle</button></div>
+      </form>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

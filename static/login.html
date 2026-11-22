@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SubWatch — Giriş</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="logo">◉</div>
+        <h1>SubWatch</h1>
+        <p>Aboneliklerini tek yerden takip et</p>
+      </div>
+
+      <div class="tabs">
+        <button type="button" id="tabLogin" class="active">Giriş yap</button>
+        <button type="button" id="tabRegister">Kayıt ol</button>
+      </div>
+
+      <form id="loginForm" class="auth-form">
+        <label>E-posta<input name="email" type="email" required></label>
+        <label>Şifre<input name="password" type="password" required></label>
+        <button type="submit">Giriş yap</button>
+      </form>
+
+      <form id="registerForm" class="auth-form hidden">
+        <label>Ad Soyad<input name="name" required></label>
+        <label>E-posta<input name="email" type="email" required></label>
+        <label>Şifre (en az 6 karakter)<input name="password" type="password" minlength="6" required></label>
+        <label>Aylık abonelik bütçen (TL)<input name="monthly_budget" type="number" min="0" value="1000" required></label>
+        <button type="submit">Kayıt ol</button>
+      </form>
+
+      <p id="error" class="error"></p>
+      
+    </div>
+  </div>
+  <script src="/static/login.js"></script>
+</body>
+</html>

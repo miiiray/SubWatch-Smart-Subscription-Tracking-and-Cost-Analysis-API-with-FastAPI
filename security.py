@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
@@ -35,7 +35,7 @@ def create_token(session, user_id: int) -> str:
     auth = AuthToken(
         token=token,
         user_id=user_id,
-        expires_at=datetime.now() + timedelta(days=TOKEN_DAYS),
+        expires_at=datetime.now(timezone.utc) + timedelta(days=TOKEN_DAYS),
     )
     session.add(auth)
     session.commit()
@@ -54,7 +54,11 @@ def get_current_user(
     if auth is None:
         raise HTTPException(status_code=401, detail="Geçersiz oturum, tekrar giriş yap.")
 
-    if auth.expires_at < datetime.now():
+    expires_at = auth.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+    if expires_at < datetime.now(timezone.utc):
         session.delete(auth)
         session.commit()
         raise HTTPException(status_code=401, detail="Oturum süresi doldu, tekrar giriş yap.")
