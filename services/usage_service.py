@@ -1,14 +1,10 @@
-"""
-usage_service.py — Kullanım analizi ve akıllı öneriler.
-"""
 from datetime import date
 
-UNUSED_DAYS = 60        # bu kadar gün kullanılmayan abonelik "kullanılmıyor" sayılır
-TRIAL_WARNING_DAYS = 3  # deneme bitmeden kaç gün önce uyarılsın
+UNUSED_DAYS = 60
+TRIAL_WARNING_DAYS = 3
 
 
 def days_idle(last_used: date | None, created_on: date, today: date) -> int:
-    """Son kullanımdan bu yana kaç gün geçti? Hiç kullanılmadıysa eklendiği günden sayar."""
     reference = last_used or created_on
     return (today - reference).days
 
@@ -18,28 +14,18 @@ def is_unused(idle_days: int, threshold: int = UNUSED_DAYS) -> bool:
 
 
 def cost_per_use(monthly_try: float, uses_last_30_days: int) -> float | None:
-    """Kullanım başına maliyet. Hiç kullanılmadıysa None."""
     if uses_last_30_days == 0:
         return None
     return round(monthly_try / uses_last_30_days, 2)
 
 
 def build_insights(items: list[dict], summary: dict, today: date) -> list[dict]:
-    """
-    items içindeki her abonelik için:
-      service_name, monthly_try, idle_days, uses_30, is_trial, trial_end_date,
-      price_changes: [(old_price, new_price, changed_on), ...]
-    Her öneri: {"level": "danger" | "warning" | "info" | "success", "message": "..."}
-    """
     insights = []
 
     # 1) Bütçe aşımı
     if summary["over_budget"]:
         over = -summary["budget_left"]
-        insights.append({
-            "level": "danger",
-            "message": f"Aylık bütçeni {over:.2f} TL aştın.",
-        })
+        insights.append({"level": "danger", "message": f"Aylık bütçeni {over:.2f} TL aştın."})
 
     for item in items:
         name = item["service_name"]
@@ -63,7 +49,7 @@ def build_insights(items: list[dict], summary: dict, today: date) -> list[dict]:
                            f"İptal edersen yılda {yearly_saving:.0f} TL tasarruf edersin.",
             })
 
-        # 4) Az kullanılıyor ama pahalı
+        # 4) Az kullanılıyor
         elif 0 < item["uses_30"] <= 2:
             per_use = cost_per_use(item["monthly_try"], item["uses_30"])
             insights.append({

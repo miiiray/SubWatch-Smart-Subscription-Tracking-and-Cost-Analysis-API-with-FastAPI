@@ -1,11 +1,4 @@
-"""
-models.py — Veritabanı tabloları ve API'ye gelen verinin şekli.
-
-SQLModel'de:
-  - table=True olan sınıflar  → veritabanında TABLO olur
-  - table=True olmayan sınıflar → sadece gelen veriyi kontrol eder (şema)
-"""
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 
 from sqlmodel import Field, SQLModel
@@ -13,8 +6,8 @@ from sqlmodel import Field, SQLModel
 
 # ---------- Sabit seçenekler ----------
 class BillingCycle(str, Enum):
-    monthly = "monthly"   # aylık
-    yearly = "yearly"     # yıllık
+    monthly = "monthly"
+    yearly = "yearly"
 
 
 class Currency(str, Enum):
@@ -23,46 +16,63 @@ class Currency(str, Enum):
     EUR = "EUR"
 
 
-# ---------- USER (Kullanıcı) ----------
-class UserBase(SQLModel):
+# ---------- USER ----------
+class User(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
     name: str
     email: str = Field(unique=True, index=True)
-    monthly_budget: float = Field(default=1000, ge=0)   # aylık abonelik bütçesi (TL)
+    password_hash: str
+    monthly_budget: float = 1000
 
 
-class User(UserBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+class UserRegister(SQLModel):
+    name: str
+    email: str
+    password: str = Field(min_length=6)
+    monthly_budget: float = Field(default=1000, ge=0)
 
 
-class UserCreate(UserBase):
-    pass
+class UserLogin(SQLModel):
+    email: str
+    password: str
 
 
-# ---------- SUBSCRIPTION (Abonelik) ----------
+class UserPublic(SQLModel):
+    id: int
+    name: str
+    email: str
+    monthly_budget: float
+
+# ---------- AUTH TOKEN ----------
+class AuthToken(SQLModel, table=True):
+    token: str = Field(primary_key=True)
+    user_id: int = Field(foreign_key="user.id", index=True)
+    expires_at: datetime
+
+# ---------- SUBSCRIPTION ----------
 class SubscriptionBase(SQLModel):
-    service_name: str                                   # Netflix, Spotify...
-    category: str = "other"                             # entertainment, music, cloud...
-    price: float = Field(gt=0)                          # 0'dan büyük olmalı
+    service_name: str
+    category: str = "other"
+    price: float = Field(gt=0)
     currency: Currency = Currency.TRY
     billing_cycle: BillingCycle = BillingCycle.monthly
-    next_payment_date: date                             # sonraki ödeme günü
-    is_trial: bool = False                              # deneme sürümü mü?
+    next_payment_date: date
+    is_trial: bool = False
     trial_end_date: date | None = None
 
 
 class Subscription(SubscriptionBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id", index=True)
-    is_active: bool = True                              # iptal edilince False olur
+    is_active: bool = True
     created_on: date = Field(default_factory=date.today)
 
 
 class SubscriptionCreate(SubscriptionBase):
-    user_id: int
+    pass
 
 
 class SubscriptionUpdate(SQLModel):
-    """Güncellemede her alan isteğe bağlı: sadece gönderilen alan değişir."""
     service_name: str | None = None
     category: str | None = None
     price: float | None = Field(default=None, gt=0)
@@ -73,7 +83,7 @@ class SubscriptionUpdate(SQLModel):
     trial_end_date: date | None = None
 
 
-# ---------- USAGE LOG (Kullanım kaydı) ----------
+# ---------- USAGE LOG ----------
 class UsageLog(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     subscription_id: int = Field(foreign_key="subscription.id", index=True)
@@ -81,10 +91,10 @@ class UsageLog(SQLModel, table=True):
 
 
 class UsageCreate(SQLModel):
-    used_on: date | None = None     # boş bırakılırsa bugün sayılır
+    used_on: date | None = None
 
 
-# ---------- PRICE HISTORY (Fiyat geçmişi / zamlar) ----------
+# ---------- PRICE HISTORY ----------
 class PriceHistory(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     subscription_id: int = Field(foreign_key="subscription.id", index=True)

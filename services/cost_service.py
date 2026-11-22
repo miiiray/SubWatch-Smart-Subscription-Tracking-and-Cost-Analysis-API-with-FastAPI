@@ -1,30 +1,19 @@
-"""
-cost_service.py — Maliyet hesapları: aylık/yıllık toplam, kategori, bütçe.
-"""
-
-
 def code_of(currency) -> str:
-    """Currency.USD veya "USD" gelse de "USD" döndürür."""
     return getattr(currency, "value", currency)
 
 
 def monthly_cost(price: float, cycle: str) -> float:
-    """Yıllık aboneliği aylığa çevirir (fiyat / 12)."""
     return price if cycle == "monthly" else price / 12
 
 
 def to_try(amount: float, currency, rates: dict) -> float:
-    """Tutarı TL'ye çevirir. rates örneği: {"TRY": 1, "USD": 42.1, "EUR": 49.3}"""
     return amount * rates.get(code_of(currency), 1.0)
 
 
 def build_summary(items: list[dict], monthly_budget: float) -> dict:
-    """
-    items: [{"service_name": "Netflix", "category": "entertainment", "monthly_try": 229.99}, ...]
-    """
     total_monthly = sum(item["monthly_try"] for item in items)
 
-    by_category: dict[str, float] = {}
+    by_category = {}
     for item in items:
         by_category[item["category"]] = by_category.get(item["category"], 0) + item["monthly_try"]
 

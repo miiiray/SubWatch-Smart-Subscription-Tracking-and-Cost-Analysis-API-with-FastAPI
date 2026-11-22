@@ -1,22 +1,15 @@
-"""
-currency_service.py — Canlı döviz kuru (dış API: Frankfurter, ücretsiz, anahtar istemez).
-
-İnternet yoksa ya da API cevap vermezse yaklaşık sabit kurlar kullanılır,
-böylece uygulama asla çökmez.
-"""
 import time
 
 import httpx
 
 API_URL = "https://api.frankfurter.app/latest"
-FALLBACK_RATES = {"TRY": 1.0, "USD": 42.0, "EUR": 49.0}  # yaklaşık değerler (yedek)
-CACHE_SECONDS = 3600  # kuru 1 saat hafızada tut, her istekte API'ye gitme
+FALLBACK_RATES = {"TRY": 1.0, "USD": 42.0, "EUR": 49.0}
+CACHE_SECONDS = 3600
 
 _cache = {"rates": None, "time": 0.0}
 
 
 def get_rates() -> dict:
-    """{"rates": {"TRY": 1, "USD": ..., "EUR": ...}, "source": "live" | "fallback"}"""
     if _cache["rates"] and time.time() - _cache["time"] < CACHE_SECONDS:
         return {"rates": _cache["rates"], "source": "live"}
 
