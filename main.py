@@ -1,10 +1,10 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
-from routers import auth, subscriptions
+
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-
+from routers import auth, insights, subscriptions
 from database import create_db_and_tables
 
 
