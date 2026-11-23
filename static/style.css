@@ -142,3 +142,11 @@ td.actions { text-align: right; white-space: nowrap; }
   .stats, .form-grid { grid-template-columns: repeat(2, 1fr); }
   .columns { grid-template-columns: 1fr; }
 }
+
+/*logo---------------*/
+.brand-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    vertical-align: middle;
+}
