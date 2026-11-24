@@ -63,6 +63,8 @@ def update_subscription(
 ):
     sub = get_own_subscription(session, subscription_id, user)
     changes = data.model_dump(exclude_unset=True)
+    # Zorunlu alanlara null gönderilirse yok say (sadece trial_end_date boş olabilir)
+    changes = {k: v for k, v in changes.items() if v is not None or k == "trial_end_date"}
 
     if "price" in changes and changes["price"] != sub.price:
         session.add(PriceHistory(
