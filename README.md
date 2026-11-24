@@ -11,6 +11,10 @@ system, so each user can **only see their own data**.
 - **HTML + CSS + JavaScript** — web interface
 - **Frankfurter API** — live exchange rates (USD/EUR → TRY)
 
+## Requirements
+- Python **3.10 or newer** (tested with 3.11 and 3.13)
+- No database server is needed: SQLite is created automatically as `subwatch.db`
+
 ## Installation
 ```bash
 git clone https://github.com/miiiray/SubWatch-Smart-Subscription-Tracking-and-Cost-Analysis-API-with-FastAPI.git
@@ -23,6 +27,7 @@ pip install -r requirements.txt
 ## Running the App
 ```bash
 python seed.py          # loads sample data (resets the database!)
+                        # on Windows, use "python" instead of "python3" above
 fastapi dev main.py     # starts the server
 ```
 - Web app: http://127.0.0.1:8000
