@@ -3,6 +3,7 @@
 const TOKEN_KEY = "subwatch_token";
 const $ = (id) => document.getElementById(id);
 let subNames = {}; // abonelik id → servis adı
+let subPrices = {}; // abonelik id → { price, currency }
 
 const CYCLE_TR = { monthly: "Aylık", yearly: "Yıllık" };
 const tl = (n) => Number(n).toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
@@ -117,6 +118,7 @@ function renderInsights(items) {
 
 function renderSubscriptions(subs) {
   subNames = Object.fromEntries(subs.map((s) => [s.id, s.service_name]));
+  subPrices = Object.fromEntries(subs.map((s) => [s.id, { price: s.price, currency: s.currency }]));
   $("subTable").innerHTML = subs.length
     ? subs.map((s) => `
         <tr>
@@ -127,6 +129,7 @@ function renderSubscriptions(subs) {
           <td>${s.next_payment_date}</td>
           <td class="actions">
             <button class="small ghost" onclick="logUsage(${s.id})">Kullandım</button>
+            <button class="small ghost" onclick="updatePrice(${s.id})">Fiyat</button>
             <button class="small danger" onclick="cancelSub(${s.id})">İptal</button>
           </td>
         </tr>`).join("")
@@ -138,6 +141,34 @@ async function logUsage(id) {
   try {
     await api(`/subscriptions/${id}/usage`, { method: "POST", body: "{}" });
     toast("Kullanım kaydedildi ✔");
+    loadDashboard();
+  } catch (err) {
+    toast(err.message);
+  }
+}
+
+async function updatePrice(id) {
+  const name = subNames[id];
+  const { price, currency } = subPrices[id];
+  const input = prompt(`${name} için yeni fiyatı gir (şu an ${price} ${currency}):`, price);
+  if (input === null) return; // Vazgeç'e basıldı
+
+  const newPrice = Number(String(input).replace(",", "."));
+  if (!Number.isFinite(newPrice) || newPrice <= 0) {
+    toast("Geçerli bir fiyat gir (0'dan büyük bir sayı).");
+    return;
+  }
+  if (newPrice === price) {
+    toast("Fiyat aynı, değişiklik yapılmadı.");
+    return;
+  }
+
+  try {
+    await api(`/subscriptions/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ price: newPrice }),
+    });
+    toast(`${name}: ${price} → ${newPrice} ${currency} ✔`);
     loadDashboard();
   } catch (err) {
     toast(err.message);
