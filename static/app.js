@@ -124,7 +124,7 @@ function renderSubscriptions(subs) {
         <tr>
           <td><strong>${esc(s.service_name)}</strong> ${s.is_trial ? '<span class="tag trial">deneme</span>' : ""}</td>
           <td><span class="tag">${esc(s.category)}</span></td>
-          <td>${s.price} ${s.currency}</td>
+          <td id="price-${s.id}">${s.price} ${s.currency}</td>
           <td>${CYCLE_TR[s.billing_cycle] || s.billing_cycle}</td>
           <td>${s.next_payment_date}</td>
           <td class="actions">
@@ -147,19 +147,29 @@ async function logUsage(id) {
   }
 }
 
-async function updatePrice(id) {
+// "Fiyat" butonu: fiyat hücresini küçük bir forma çevirir
+function updatePrice(id) {
+  const { price, currency } = subPrices[id];
+  $(`price-${id}`).innerHTML = `
+    <input id="priceInput-${id}" type="number" min="0.01" step="0.01" value="${price}" style="width:110px">
+    ${currency}
+    <button class="small" onclick="savePrice(${id})">Kaydet</button>
+    <button class="small ghost" onclick="loadDashboard()">Vazgeç</button>`;
+  $(`priceInput-${id}`).focus();
+}
+
+async function savePrice(id) {
   const name = subNames[id];
   const { price, currency } = subPrices[id];
-  const input = prompt(`${name} için yeni fiyatı gir (şu an ${price} ${currency}):`, price);
-  if (input === null) return; // Vazgeç'e basıldı
+  const newPrice = Number(String($(`priceInput-${id}`).value).replace(",", "."));
 
-  const newPrice = Number(String(input).replace(",", "."));
   if (!Number.isFinite(newPrice) || newPrice <= 0) {
     toast("Geçerli bir fiyat gir (0'dan büyük bir sayı).");
     return;
   }
   if (newPrice === price) {
     toast("Fiyat aynı, değişiklik yapılmadı.");
+    loadDashboard();
     return;
   }
 

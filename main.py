@@ -28,6 +28,16 @@ app.include_router(auth.router)
 app.include_router(subscriptions.router)
 app.include_router(insights.router)
 
+# Tarayıcı site dosyalarını hafızada tutmasın: kod değişince hep en yeni hali gelsin
+@app.middleware("http")
+async def no_cache_for_site(request, call_next):
+    response = await call_next(request)
+    path = request.url.path
+    if path in ("/", "/app") or path.startswith("/static"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
+
+
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
